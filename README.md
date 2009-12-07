@@ -1,8 +1,13 @@
 # Gistsume
 
-Crib another user's entire Gist-stash -- good for backup purposes. If the gist already exists as a repo, it'll pull to get latest.
+Crib another user's entire Gist-stash for backup purposes or what-have-you.
+
+* If the Gist already exists as a repo, it'll pull to get latest.
+* Right now it only consumes your public gists due to limitations in GitHub's Gist API
 
 ## Usage
+
+$ *gitsume.rb* *username*
 
     jp@populuxe:~$ gistsume.rb jpignata
     Pulling jpignata-gists/gist-250480 

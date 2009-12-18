@@ -66,12 +66,12 @@ class Gistsume
     
     def pull_repository(gist)
       puts "Pulling #{gist_identifier(gist)}"
-      system "cd #{gist_directory(gist['repo'])} && git pull --quiet"
+      system "cd #{gist_directory(gist['repo'])} && git pull --quiet 2>/dev/null"
     end
     
     def clone_repository(gist)
       puts "Cloning #{gist_identifier(gist)}"
-      system "git clone --quiet #{CLONE_BASE_URI}/#{gist['repo']}.git #{gist_directory(gist['repo'])}"
+      system "git clone --quiet #{CLONE_BASE_URI}/#{gist['repo']}.git #{gist_directory(gist['repo'])} 2>/dev/null"
     end
   end
 end
@@ -79,6 +79,6 @@ end
 if ARGV[0]
   Gistsume.run(ARGV[0])
 else
-  puts "Usage: gitsume.rb <username>"
+  puts "Usage: gistsume.rb <username>"
   exit
 end

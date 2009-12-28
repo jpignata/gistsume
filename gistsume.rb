@@ -18,10 +18,10 @@ class Gistsume
 
   def run(username)
     @username = username
-    if get_gists_index
+    if @gists = get_gists_index
       process_gists
     else
-      puts "Gist index for #{username} not found."
+      puts "#{username} doesn't exist."
     end
   end
 
@@ -29,10 +29,15 @@ class Gistsume
 
     def get_gists_index
       response = self.class.get("#{::API_BASE_URI}/#{@username}")
-      return @gists = response["gists"]
+      response["gists"]
     end
   
     def process_gists
+      if @gists.size == 0 
+        puts "#{@username} doesn't have any gists."
+        exit
+      end
+      
       @gists.each do |gist_data| 
         gist = Gist.new(gist_data, "#{@username}-gists")
         gist.clone_or_pull

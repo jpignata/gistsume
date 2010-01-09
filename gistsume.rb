@@ -1,21 +1,12 @@
 #!/usr/bin/env ruby
 
-begin
-  require 'rubygems'
-  require 'httparty'
-rescue LoadError
-  puts "You must install HTTParty to use Gistsume: gem install httparty"
-  exit
-end
-
 API_BASE_URI = "http://gist.github.com/api/v1/json/gists"
 GIT_BASE_URI = "git://gist.github.com"
 
+require 'open-uri'
+require 'json'
+
 class Gistsume
-  include HTTParty
-
-  format :json
-
   def run(username)
     @username = username
     if @gists = get_gists_index
@@ -28,8 +19,13 @@ class Gistsume
   private
 
     def get_gists_index
-      response = self.class.get("#{::API_BASE_URI}/#{@username}")
-      response["gists"]
+      begin
+        response = open("#{::API_BASE_URI}/#{@username}").read
+        JSON.parse(response)["gists"]
+      rescue OpenURI::HTTPError => e
+        puts "Error: #{e.message}"
+        exit
+      end        
     end
   
     def process_gists

@@ -25,16 +25,16 @@ class Gistsume
       rescue OpenURI::HTTPError => e
         puts "Error: #{e.message}"
         exit
-      end        
+      end
     end
-  
+
     def process_gists
-      if @gists.size == 0 
+      if @gists.size == 0
         puts "#{@username} doesn't have any gists."
         exit
       end
-      
-      @gists.each do |gist_data| 
+
+      @gists.each do |gist_data|
         gist = Gist.new(gist_data, "#{@username}-gists")
         gist.clone_or_pull
       end

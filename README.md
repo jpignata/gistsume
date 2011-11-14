@@ -7,7 +7,7 @@ Crib another user's entire Gist-stash for backup purposes or what-have-you.
 
 ## Usage
 
-$ gitsume.rb [username]
+$ gitsume [username]
 
     jp@populuxe:~$ gistsume.rb jpignata
     Pulling jpignata-gists/250480

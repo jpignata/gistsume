@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
-API_BASE_URI = "http://gist.github.com/api/v1/json/gists"
-GIT_BASE_URI = "git://gist.github.com"
-
-require 'open-uri'
-require 'json'
+require "open-uri"
+require "json"
+require "fileutils"
 
 class Gistsume
+  API_BASE_URI = "https://api.github.com"
+
   def run(username)
     @username = username
     if @gists = get_gists_index
@@ -18,34 +18,36 @@ class Gistsume
 
   private
 
-    def get_gists_index
-      begin
-        response = open("#{::API_BASE_URI}/#{@username}").read
-        JSON.parse(response)["gists"]
-      rescue OpenURI::HTTPError => e
-        puts "Error: #{e.message}"
-        exit
-      end
+  def get_gists_index
+    begin
+      response = open("#{API_BASE_URI}/users/#{@username}/gists").read
+      JSON.parse(response)
+    rescue OpenURI::HTTPError => e
+      puts "Error: #{e.message}"
+      exit
+    end
+  end
+
+  def process_gists
+    if @gists.size == 0
+      puts "#{@username} doesn't have any gists."
+      exit
     end
 
-    def process_gists
-      if @gists.size == 0
-        puts "#{@username} doesn't have any gists."
-        exit
-      end
-
-      @gists.each do |gist_data|
-        gist = Gist.new(gist_data, "#{@username}-gists")
-        gist.clone_or_pull
-      end
+    @gists.each do |gist_data|
+      gist = Gist.new(gist_data, "#{@username}-gists")
+      gist.clone_or_pull
     end
+  end
 end
 
 class Gist
   def initialize(gist, root)
-    @repo = gist["repo"]
     @description = gist["description"]
-    @root = root
+    @id          = gist["id"]
+    @repo        = gist["git_pull_url"]
+    @user        = gist["user"]["login"]
+    @root        = root
   end
 
   def clone_or_pull
@@ -60,27 +62,27 @@ class Gist
 
   private
 
-    def directory
-      "#{@root}/gist-#{@repo}"
-    end
+  def identifier
+    "#{directory} #{description}"
+  end
 
-    def identifier
-      "#{directory} #{description}"
-    end
+  def description
+    "(#{@description})" if @description && @description.length > 0
+  end
 
-    def description
-      "(#{@description})" if @description && @description.length > 0
-    end
+  def directory
+    "#{@user}-gists/#{@id}"
+  end
 
-    def pull
-      puts "Pulling #{identifier}"
-      system "cd #{directory} && git pull --quiet 2>/dev/null"
-    end
+  def pull
+    puts "Pulling #{identifier}"
+    system "cd #{directory} && git pull --quiet 2>/dev/null"
+  end
 
-    def clone
-      puts "Cloning #{identifier}"
-      system "git clone --quiet #{::GIT_BASE_URI}/#{@repo}.git #{directory} 2>/dev/null"
-    end
+  def clone
+    puts "Cloning #{identifier}"
+    system "git clone --quiet #{@repo} #{directory} 2>/dev/null"
+  end
 end
 
 if ARGV.first
